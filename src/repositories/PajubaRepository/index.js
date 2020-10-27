@@ -11,10 +11,26 @@ class PajubaRepository {
     mongoose.connect(db.uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
   }
 
-  async index() {
-    const pajubas = await PajubaModel.find({});
-
-    return pajubas;
+  async index(query, page = 1, size = 10) {
+    try {
+      let pajubas = [];
+      let total = 0;
+      if (query) {
+        pajubas = await PajubaModel.find(query)
+          .skip((page - 1) * size)
+          .limit(parseInt(size));
+        total = await PajubaModel.find(query).estimatedDocumentCount();
+      }
+      else {
+        pajubas = await PajubaModel.find({})
+          .skip((page - 1) * size)
+          .limit(parseInt(size));
+        total = await PajubaModel.find({}).estimatedDocumentCount();
+      }
+      return { pajubas, total };
+    } catch (error) {
+      return { error };
+    }
   }
 
   async getOne(title) {
@@ -41,7 +57,7 @@ class PajubaRepository {
     return length;
   }
 
-  async store(title, description) {    
+  async store(title, description) {
     const data = await PajubaModel.create({ title, description });
 
     return data;
@@ -55,8 +71,8 @@ class PajubaRepository {
 
   async update(pajuba) {
 
-    const {title, description} = pajuba;
-    const data = await PajubaModel.findByIdAndUpdate({_id: pajuba._id}, {title:title, description:description}, {new: true});
+    const { title, description } = pajuba;
+    const data = await PajubaModel.findByIdAndUpdate({ _id: pajuba._id }, { title: title, description: description }, { new: true });
 
     return data;
   }
@@ -66,12 +82,12 @@ class PajubaRepository {
     return removed;
   }
 
-  async getAvailableExpressions(size=3) {
+  async getAvailableExpressions(size = 3) {
     try {
-      const pajubas = await PajubaModel.aggregate([{ '$sample': { size: parseInt(size) } }, {'$project': { title: 1, _id: 0 }}]);            
+      const pajubas = await PajubaModel.aggregate([{ '$sample': { size: parseInt(size) } }, { '$project': { title: 1, _id: 0 } }]);
       const expressionsTitle = pajubas.map(item => item.title);
       return expressionsTitle;
-    } catch (error) {      
+    } catch (error) {
       return { error };
     }
   }
@@ -93,7 +109,7 @@ class PajubaRepository {
     }
   }
 
-  async exists(title){
+  async exists(title) {
     try {
       const exists = await PajubaModel.exists({ title: title });
 

@@ -8,8 +8,12 @@ class PajubaController {
 
   async index(req, res) {
     try {
-      const pajubas = await PajubaRepository.index();
+      
+      const {page,size} = req.query;            
+      const {pajubas, total} = await PajubaRepository.index({}, page, size);                 
       await AuditRepository.store('index', 'list all pajubas');
+      
+      res.header('X-Total-Count', total);
       return res.json(pajubas);
     } catch (error) {
       res.boom.badRequest(error)

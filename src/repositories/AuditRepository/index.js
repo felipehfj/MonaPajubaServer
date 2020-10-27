@@ -11,17 +11,24 @@ class PajubaRepository {
     mongoose.connect(db.uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
   }
 
-  async index(query) {
+  async index(query, page = 1, size = 10) {
     try {
       let audits = [];
-      if (query)
-        audits = await AuditModel.find(query);
-      else
-        audits = await AuditModel.find({});
-
-      return audits;
-    } catch (error) {
-      console.log(error)
+      let total = 0;
+      if (query) {
+        audits = await AuditModel.find(query)
+          .skip((page - 1) * size)
+          .limit(parseInt(size));
+        total = await AuditModel.find(query).estimatedDocumentCount();
+      }
+      else {
+        audits = await AuditModel.find({})
+          .skip((page - 1) * size)
+          .limit(parseInt(size));
+        total = await AuditModel.find({}).estimatedDocumentCount();
+      }
+      return { audits, total };
+    } catch (error) {      
       return { error };
     }
   }
