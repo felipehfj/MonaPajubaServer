@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
-const UserAccessSchema = new mongoose.Schema(
+const UserModel = new mongoose.Schema(
   {
     userId: {
       type: String,
-      required: true
+      required: true,
+      unique: true,
     },  
     name:{
       type: String,
@@ -16,4 +17,4 @@ const UserAccessSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("UserAccess", UserAccessSchema);
+module.exports = mongoose.model("User", UserModel);

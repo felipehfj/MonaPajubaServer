@@ -1,8 +1,11 @@
 const PajubaRepository = require('./index');
 
 test('expect to get a list of pajubas', async () => {
-  const data = await PajubaRepository.index();
-  expect(data.length).toBeGreaterThanOrEqual(0);
+  const data = await PajubaRepository.index();  
+  expect(data).not.toBe(null);
+  expect(data.total).not.toBe(null);
+  expect(data.pajubas).not.toBe(null);  
+  expect(data.pajubas.length).toBeGreaterThanOrEqual(0);
 });
 
 test('expect to get a random pajuba', async () => {
